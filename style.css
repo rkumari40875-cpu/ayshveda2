@@ -1,0 +1,170 @@
+/* Custom Styles for Stammina Booster Landing Page */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.navbar {
+    background-color: #0056b3;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar img {
+    max-height: 45px;
+    width: auto;
+}
+
+.navbar h1 {
+    color: #ffffff;
+    font-size: 18px;
+    margin: 0;
+    text-align: center;
+    font-weight: 700;
+}
+
+.product-img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto 20px auto;
+}
+
+.price-container {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.price.strike {
+    text-decoration: line-through;
+    color: #888;
+    font-size: 22px;
+    margin-right: 15px;
+}
+
+.price.new {
+    color: #dc3545;
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.button-bottom {
+    margin: 25px 0;
+    text-align: center;
+}
+
+.button-bottom a {
+    display: inline-block;
+    background: #28a745;
+    color: #ffffff;
+    padding: 14px 35px;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.button-bottom a:hover {
+    background-color: #218838;
+    transform: scale(1.03);
+}
+
+.custom-input {
+    height: 48px;
+    font-size: 16px;
+    border-radius: 8px;
+}
+
+.submit-bb {
+    background: #dc3545;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 8px;
+    width: 100%;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+}
+
+.submit-bb:hover {
+    background: #c82333;
+}
+
+/* Comments Section */
+.comments {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px solid #e9ecef;
+}
+
+.comments__title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 25px;
+    color: #212529;
+}
+
+.comments__item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.comments__avatar img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #dee2e6;
+}
+
+.comments__body {
+    flex: 1;
+}
+
+.comments__info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.comments__name {
+    font-weight: 700;
+    color: #0056b3;
+    font-size: 16px;
+}
+
+.time-comments {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.comments__text p {
+    margin-bottom: 8px;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.comments__text img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.like-facebook img {
+    width: 20px;
+    height: 20px;
+    margin-top: 5px;
+}
