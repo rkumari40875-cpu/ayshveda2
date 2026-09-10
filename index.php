@@ -709,26 +709,8 @@ function getCookie(name) {
         }
     </style>
 
-    <div id="otpModal" class="otp-modal-overlay" style="display:none;">
-        <div class="otp-modal-content">
-            <div class="otp-header text-center">
-                <h4 class="font-weight-bold text-danger mb-1">📱 OTP सत्यापन (OTP Verification)</h4>
-                <p class="text-secondary mb-2" style="font-size: 14px;">आपके मोबाइल नंबर <strong id="otpPhoneDisplay" class="text-dark"></strong> पर OTP भेजा गया है।</p>
-                <div class="alert alert-warning py-2 my-2" style="font-size: 15px; border-radius: 8px;">
-                    🔑 <strong>आपका OTP:</strong> <span id="generatedOtpCode" style="font-size: 22px; font-weight: bold; letter-spacing: 3px; color: #d9534f;">1234</span>
-                </div>
-            </div>
-            <div class="otp-body">
-                <div class="form-group text-center my-3">
-                    <label for="otpInput" class="font-weight-bold">नीचे 4-अंकों का OTP दर्ज करें:</label>
-                    <input type="text" id="otpInput" class="form-control text-center font-weight-bold" maxlength="4" placeholder="1234" style="font-size: 26px; letter-spacing: 8px; width: 180px; margin: 0 auto; border: 2px solid #dc3545; border-radius: 10px;">
-                    <div id="otpError" class="text-danger mt-2" style="display:none; font-weight: bold; font-size: 14px;">❌ गलत OTP! कृपया प्रदर्शित OTP दर्ज करें।</div>
-                </div>
-                <button type="button" id="btnVerifyOtp" class="btn btn-success btn-block btn-lg font-weight-bold" style="border-radius: 10px; font-size: 18px;">OTP सत्यापित करें & बुकिंग कन्फर्म करें</button>
-                <button type="button" id="btnCloseOtp" class="btn btn-link text-muted btn-sm btn-block mt-2">रद्द करें (Cancel)</button>
-            </div>
-        </div>
-    </div>
+    
+            
 
     <div id="bookingSuccessModal" class="otp-modal-overlay" style="display:none;">
         <div class="otp-modal-content text-center">
@@ -748,16 +730,9 @@ function getCookie(name) {
     </div>
 
     <script>
-        // -------- OTP & Booking Form Handler --------
+        // -------- Direct Booking Form Handler --------
         const orderForm = document.getElementById("orderFormBorder");
-        const otpModal = document.getElementById("otpModal");
         const bookingSuccessModal = document.getElementById("bookingSuccessModal");
-        const otpInput = document.getElementById("otpInput");
-        const otpError = document.getElementById("otpError");
-        const generatedOtpCodeEl = document.getElementById("generatedOtpCode");
-        const otpPhoneDisplay = document.getElementById("otpPhoneDisplay");
-
-        let currentOtp = "1234";
 
         function submitOrderToPhp(nameVal, phoneVal, addressVal) {
             const formData = new FormData();
@@ -779,7 +754,6 @@ function getCookie(name) {
             });
         }
 
-
         function handleOrderSubmit(e) {
             if (e) e.preventDefault();
             
@@ -797,42 +771,21 @@ function getCookie(name) {
                 return false;
             }
 
-            // Generate random 4 digit OTP
-            currentOtp = Math.floor(1000 + Math.random() * 9000).toString();
-            generatedOtpCodeEl.textContent = currentOtp;
-            otpPhoneDisplay.textContent = phoneVal;
-            otpInput.value = "";
-            otpError.style.display = "none";
+            // Directly post order to backend
+            submitOrderToPhp(nameVal, phoneVal, addressVal);
 
-            // Show OTP Modal
-            otpModal.style.display = "flex";
+            // Populate and show Booking Success modal directly
+            document.getElementById("confName").textContent = nameVal;
+            document.getElementById("confPhone").textContent = phoneVal;
+            document.getElementById("confAddress").textContent = addressVal;
+            bookingSuccessModal.style.display = "flex";
+
             return false;
         }
 
         if (orderForm) {
             orderForm.addEventListener("submit", handleOrderSubmit);
         }
-
-        document.getElementById("btnVerifyOtp").addEventListener("click", function () {
-            const userEnteredOtp = otpInput.value.trim();
-            if (userEnteredOtp === currentOtp) {
-                otpModal.style.display = "none";
-
-                // Fill details in success modal
-                document.getElementById("confName").textContent = document.getElementById("name").value;
-                document.getElementById("confPhone").textContent = document.getElementById("phone").value;
-                document.getElementById("confAddress").textContent = document.getElementById("address").value;
-
-                submitOrderToPhp(document.getElementById("name").value, document.getElementById("phone").value, document.getElementById("address").value);
-                bookingSuccessModal.style.display = "flex";
-            } else {
-                otpError.style.display = "block";
-            }
-        });
-
-        document.getElementById("btnCloseOtp").addEventListener("click", function () {
-            otpModal.style.display = "none";
-        });
     </script>
 </body>
 
