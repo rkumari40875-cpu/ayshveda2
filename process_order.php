@@ -9,7 +9,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Support both FormData (POST) and JSON body payloads
 $raw_input = file_get_contents('php://input');
 $json_data = json_decode($raw_input, true);
 
@@ -17,9 +16,7 @@ $name = trim($_POST['name'] ?? $json_data['name'] ?? '');
 $mobile = trim($_POST['mobile'] ?? $_POST['phone'] ?? $json_data['mobile'] ?? $json_data['phone'] ?? '');
 $address = trim($_POST['address'] ?? $json_data['address'] ?? '');
 $source = trim($_POST['source'] ?? $json_data['source'] ?? 'website');
-$ip_address = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
 
-// Validation
 if (empty($name) || empty($mobile) || empty($address)) {
     echo json_encode(['success' => false, 'message' => 'Please fill in all required fields (Name, Mobile, Address).']);
     exit;
@@ -30,58 +27,30 @@ if (!preg_match('/^\d{10}$/', $mobile)) {
     exit;
 }
 
-$order_id = null;
+$order_id = 'HF-' . date('ymd') . rand(100, 999);
 $created_at = date('Y-m-d H:i:s');
+$full_address = $name . ' - ' . $address;
 
 try {
-    // 1. Insert into SQLite Database
-    $db = new PDO('sqlite:' . DB_FILE);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    
-    $stmt = $db->prepare("INSERT INTO orders (name, mobile, address, source, ip_address, created_at) VALUES (:name, :mobile, :address, :source, :ip, :created_at)");
-    $stmt->execute([
-        ':name' => $name,
-        ':mobile' => $mobile,
-        ':address' => $address,
-        ':source' => $source,
-        ':ip' => $ip_address,
-        ':created_at' => $created_at
-    ]);
-    
-    $order_id = $db->lastInsertId();
-
-    // 2. Append to CSV file
-    $fp = fopen(CSV_FILE, 'a');
-    fputcsv($fp, [$order_id, $name, $mobile, $address, $source, $ip_address, $created_at]);
-    fclose($fp);
-
-    // 3. Send order to Google Sheet Webhook if configured
     if (defined('GOOGLE_SHEET_WEBHOOK_URL') && !empty(GOOGLE_SHEET_WEBHOOK_URL)) {
-        try {
-            $sheet_payload = json_encode([
-                'id' => $order_id,
-                'name' => $name,
-                'mobile' => $mobile,
-                'address' => $address,
-                'source' => $source,
-                'ip_address' => $ip_address,
-                'created_at' => $created_at
-            ]);
+        $sheet_payload = json_encode([
+            'order_id' => $order_id,
+            'created_at' => $created_at,
+            'mobile' => $mobile,
+            'address' => $full_address,
+            'product' => PRODUCT_NAME
+        ]);
 
-            $ch = curl_init(GOOGLE_SHEET_WEBHOOK_URL);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $sheet_payload);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-            curl_exec($ch);
-            curl_close($ch);
-        } catch (Exception $e) {
-            error_log('Google Sheet Sync Error: ' . $e->getMessage());
-        }
+        $ch = curl_init(GOOGLE_SHEET_WEBHOOK_URL);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $sheet_payload);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_exec($ch);
+        curl_close($ch);
     }
-
 
     echo json_encode([
         'success' => true,
@@ -91,6 +60,7 @@ try {
             'name' => $name,
             'mobile' => $mobile,
             'address' => $address,
+            'product' => PRODUCT_NAME,
             'price' => PRODUCT_PRICE,
             'created_at' => $created_at
         ]
