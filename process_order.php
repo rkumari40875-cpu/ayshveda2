@@ -55,6 +55,34 @@ try {
     fputcsv($fp, [$order_id, $name, $mobile, $address, $source, $ip_address, $created_at]);
     fclose($fp);
 
+    // 3. Send order to Google Sheet Webhook if configured
+    if (defined('GOOGLE_SHEET_WEBHOOK_URL') && !empty(GOOGLE_SHEET_WEBHOOK_URL)) {
+        try {
+            $sheet_payload = json_encode([
+                'id' => $order_id,
+                'name' => $name,
+                'mobile' => $mobile,
+                'address' => $address,
+                'source' => $source,
+                'ip_address' => $ip_address,
+                'created_at' => $created_at
+            ]);
+
+            $ch = curl_init(GOOGLE_SHEET_WEBHOOK_URL);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $sheet_payload);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            curl_exec($ch);
+            curl_close($ch);
+        } catch (Exception $e) {
+            error_log('Google Sheet Sync Error: ' . $e->getMessage());
+        }
+    }
+
+
     echo json_encode([
         'success' => true,
         'message' => 'Order placed successfully!',
